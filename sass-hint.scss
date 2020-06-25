@@ -1,0 +1,206 @@
+//------------------------------Nesting Selectors
+.parent {
+  color: blue;
+  .child {
+    font-size: 12px;
+  }
+}
+
+//-----------------------------Nesting Properties
+.parent {
+  font : {
+    family: Roboto, sans-serif;
+    size: 12px;
+  }
+}
+
+//------------------------------Variables In Sass
+$translucent-white: rgba(255, 255, 255, 0.3);
+
+//Sass(y) Types
+// Numbers, such as 8.11, 12, and 10px. Notice that while 10 has a unit of px associated with it, it is still considered a number.
+// Strings of text, with and without quotes. Some examples are "potato", 'tomato', span.
+// Booleans, or simply true and false.
+// null, which is considered an empty value.
+
+//-----------------------------Maps & Lists
+//list
+$list: 4px solid black;
+//or
+$list: 4px, solid, black;
+//map
+$map: (
+  border-top: 4px solid black,
+  border-bottom: 4px solid black,
+  font-family: "Pacifico",
+  cursive
+);
+
+//----------------------------The "&" Selector in Nesting
+.notecard {
+  &:hover {
+    @include transform(rotatey(-180deg));
+  }
+}
+
+//----------------------------Mixin
+@mixin backface-visibility($visibility: hidden) {
+  backface-visibility: $visibility;
+}
+@include backface-visibility(hidden);
+
+@mixin dashed-border($width, $color: #fff) {
+  border: {
+    color: $color;
+    width: $width;
+    style: dashed;
+  }
+}
+span {
+  //only passes non-default argument
+  @include dashed-border(3px);
+}
+p {
+  //passes both arguments
+  @include dashed-border(3px, green);
+}
+// div {
+//   //passes out of order but explicitly defined
+//   @include dashed-border(color: purple, width: 5px);
+// }
+
+//List Arguments
+@mixin stripes(
+  $direction,
+  $width-percent,
+  $stripe-color,
+  $stripe-background: #fff
+) {
+  background: repeating-linear-gradient(
+    $direction,
+    $stripe-background,
+    $stripe-background ($width-percent - 1),
+    $stripe-color 1%,
+    $stripe-background $width-percent
+  );
+}
+$college-ruled-style: (
+  direction: to bottom,
+  width-percent: 15%,
+  stripe-color: blue,
+  stripe-background: white
+);
+.definition {
+  width: 100%;
+  height: 100%;
+  @include stripes($college-ruled-style...);
+}
+
+//-----------------------------------String Interpolation
+@mixin photo-content($file) {
+  content: url(#{$file}.jpg); //string interpolation
+  object-fit: cover;
+}
+.photo {
+  @include photo-content("titanosaur");
+  width: 60%;
+  margin: 0px auto;
+}
+
+//-----------------------------------The "&" Selector in Mixins
+@mixin text-hover($color) {
+  &:hover {
+    color: $color;
+  }
+}
+.word {
+  display: block;
+  text-align: center;
+  position: relative;
+  top: 40%;
+  @include text-hover(red);
+}
+//css
+.word:hover {
+  color: red;
+}
+
+//-----------------------------------Arithmetic and Color
+$color1: fade-out(rgba(39, 39, 39, 0.5), 0.1); //rgba(39, 39, 39, 0.4)
+$color2: fade-in(rgba(39, 39, 39, 0.5), 0.1); //rgba(55,7,56, 0.6)
+
+//----------------------------------Color Functions
+$color: #010203 + #040506;
+$color: red + blue;
+
+//------------------------------------Arithmetic
+// +-*/%
+//10px * 10px - wrong
+//10px * 10 - right
+//10px/10px - wrong
+//10px/10 - right
+
+//----------------------------------Each Loops
+@each $item in $list {
+  .#{$item} {
+    background: $item;
+  }
+}
+
+//----------------------------------For loops
+@for $i from 1 through $total {
+  .ray:nth-child(#{$i}) {
+    background: blue;
+  }
+}
+
+//----------------------------------Conditionals
+.condition {
+  width: if($condition, $value-if-true, $value-if-false);
+}
+
+//---------------------------------@Import in SCSS
+@import "sass/header";
+
+//Organize with Partials
+//_filename.scss
+
+//-----------------------------------@Extend
+//scss
+.lemonade {
+  border: 1px yellow;
+  background-color: #fdd;
+}
+.strawberry {
+  @extend .lemonade;
+  border-color: pink;
+}
+//css
+.lemonade,
+.strawberry {
+  border: 1px yellow;
+  background-color: #fdd;
+}
+
+//%Placeholders
+//scss
+a%drink {
+  font-size: 2em;
+  background-color: $lemon-yellow;
+}
+.lemonade {
+  @extend %drink;
+  //more rules
+}
+//css
+a.lemonade {
+  font-size: 2em;
+  background-color: $lemon-yellow;
+}
+.lemonade {
+  //more rules
+}
+
+//@Extend vs @Mixin
+//Try to only create mixins that take in an argument, otherwise you should extend.
+//Always look at your CSS output to make sure your extend is behaving as you intended.
